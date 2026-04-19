@@ -1,0 +1,1216 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Incognote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #182129;
+      --ink-soft: #4c616d;
+      --paper: #f6f9fb;
+      --panel: #ffffff;
+      --line: #d6e1e8;
+      --accent: #005d7a;
+      --accent-strong: #064f65;
+      --mint: #2f8f7a;
+      --danger: #c53a2d;
+      --shadow: 0 12px 32px rgba(8, 38, 61, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 10%, #d8eff8 0%, transparent 30%),
+        radial-gradient(circle at 85% 85%, #ffe7cf 0%, transparent 28%),
+        var(--paper);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      animation: rise 0.45s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      font-family: "Space Grotesk", sans-serif;
+      background: linear-gradient(135deg, #085f7d, #37a18f);
+    }
+
+    h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      animation: rise 0.5s ease;
+    }
+
+    .card h2 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid rgba(0, 93, 122, 0.24);
+      border-color: var(--accent);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 11px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.14s ease, opacity 0.14s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e8eef2;
+      color: var(--ink);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .chip-owner { background: #dff5e8; color: #1f6a4e; }
+    .chip-write { background: #f7edd7; color: #7f5a14; }
+    .chip-read { background: #e8eef3; color: #526571; }
+    .chip-admin { background: #dbeff8; color: #005074; }
+
+    .status {
+      border-radius: 11px;
+      padding: 9px 11px;
+      font-size: 0.88rem;
+      border: 1px solid transparent;
+    }
+
+    .status-ok {
+      color: #0d6d55;
+      background: #e2f7ef;
+      border-color: #b8e8d8;
+    }
+
+    .status-err {
+      color: #8c2216;
+      background: #ffe9e3;
+      border-color: #ffc9bf;
+    }
+
+    .hidden { display: none; }
+
+    .note-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .note-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      animation: rise 0.35s ease;
+    }
+
+    .note-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--ink-soft);
+      font-size: 0.82rem;
+    }
+
+    .note-preview {
+      white-space: pre-wrap;
+      color: var(--ink);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      max-height: 4.2em;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .note-preview::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1.4em;
+      background: linear-gradient(to bottom, transparent, #fff);
+    }
+
+    .mono {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+    }
+
+    .viewer {
+      display: grid;
+      gap: 12px;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 920px) {
+      body { padding: 14px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">IN</div>
+        <div>
+          <h1>Incognote</h1>
+          <p class="subtitle">Secure shared notes with RBAC and optional AES encryption</p>
+        </div>
+      </div>
+      <div class="btn-row">
+        <span id="user-pill" class="mono hidden"></span>
+        <button id="logout-btn" class="btn-secondary hidden">Logout</button>
+      </div>
+    </header>
+
+    <section id="status-bar" class="status hidden"></section>
+
+    <section id="auth-section" class="grid">
+      <article class="card">
+        <h2 id="auth-title">Login</h2>
+        <form id="auth-form" class="stack">
+          <label>
+            Email
+            <input id="auth-email" type="email" maxlength="254" autocomplete="email" required />
+          </label>
+          <label id="register-username-wrap" class="hidden">
+            Username
+            <input id="auth-username" type="text" maxlength="32" autocomplete="username" />
+          </label>
+          <label>
+            Password
+            <input id="auth-password" type="password" maxlength="128" autocomplete="current-password" required />
+          </label>
+          <div class="btn-row">
+            <button class="btn-primary" type="submit" id="auth-submit">Login</button>
+            <button class="btn-secondary" type="button" id="auth-toggle">Need an account?</button>
+          </div>
+          <hr style="border: none; border-top: 1px solid var(--line); margin: 4px 0;" />
+          <label>
+            Verification token (after register)
+            <input id="verify-token" type="text" maxlength="128" />
+          </label>
+          <button class="btn-secondary" type="button" id="verify-email-btn">Verify email</button>
+          <button class="btn-secondary" type="button" id="resend-token-btn">Resend token</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Security Guide</h2>
+        <div class="stack mono">
+          <p>1. Use a password with letters + digits.</p>
+          <p>2. Verify your email before first login.</p>
+          <p>3. Optional private key protects note/message content.</p>
+          <p>4. If Auth Service is unavailable, note operations are denied by design.</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="app-section" class="grid hidden">
+      <article class="card">
+        <h2>Create Note</h2>
+        <form id="create-form" class="stack">
+          <label>
+            Content
+            <textarea id="create-content" maxlength="5000" required></textarea>
+          </label>
+          <p class="mono">Optional private key from the panel on the right is used for note encryption.</p>
+          <div class="btn-row">
+            <button class="btn-primary" type="submit">Create</button>
+            <button class="btn-secondary" type="button" id="refresh-btn">Refresh</button>
+          </div>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Notes</h2>
+        <div id="note-list" class="note-list"></div>
+      </article>
+
+      <article class="card">
+        <h2>View / Edit</h2>
+        <div id="viewer-empty" class="mono">Choose a note to inspect or edit.</div>
+        <form id="viewer-form" class="viewer hidden">
+          <p class="mono" id="viewer-meta"></p>
+          <label>
+            Content
+            <textarea id="viewer-content" maxlength="5000" required></textarea>
+          </label>
+          <div class="btn-row">
+            <button class="btn-primary" type="submit" id="save-btn">Save</button>
+            <button class="btn-danger" type="button" id="delete-btn">Delete</button>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--line); margin: 4px 0;" />
+
+          <label>
+            Share with username or email
+            <input id="share-username" type="text" maxlength="254" />
+          </label>
+          <label>
+            Permission
+            <select id="share-permission">
+              <option value="read">read</option>
+              <option value="write">write</option>
+            </select>
+          </label>
+          <button class="btn-secondary" type="button" id="share-btn">Share</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Friends & Messages</h2>
+        <div class="stack">
+          <label>
+            Private key (optional, for notes + messages)
+            <input id="global-private-key" type="password" maxlength="256" />
+          </label>
+          <label>
+            Load private key from .txt
+            <input id="private-key-file" type="file" accept=".txt" />
+          </label>
+          <p id="private-key-path" class="mono">No key file selected.</p>
+
+          <hr style="border: none; border-top: 1px solid var(--line); margin: 4px 0;" />
+
+          <label>
+            Add friend (username or email)
+            <input id="friend-identifier" type="text" maxlength="254" />
+          </label>
+          <div class="btn-row">
+            <button class="btn-secondary" type="button" id="add-friend-btn">Send invite</button>
+            <button class="btn-secondary" type="button" id="refresh-friends-btn">Refresh friends</button>
+          </div>
+          <div id="friend-list" class="note-list"></div>
+
+          <div class="btn-row">
+            <button class="btn-secondary" type="button" id="refresh-invites-btn">Refresh invites</button>
+          </div>
+          <div id="invite-list" class="note-list"></div>
+
+          <hr style="border: none; border-top: 1px solid var(--line); margin: 4px 0;" />
+
+          <label>
+            Send message to friend
+            <select id="message-recipient"></select>
+          </label>
+          <label>
+            Message content
+            <textarea id="message-content" maxlength="5000"></textarea>
+          </label>
+          <div class="btn-row">
+            <button class="btn-primary" type="button" id="send-message-btn">Send message</button>
+            <button class="btn-secondary" type="button" id="refresh-messages-btn">Refresh messages</button>
+          </div>
+          <div id="message-list" class="note-list"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const AUTH_URL = "http://localhost:3001";
+    const NOTES_URL = "http://localhost:3002";
+
+    const state = {
+      token: localStorage.getItem("incognote_token") || "",
+      username: localStorage.getItem("incognote_username") || "",
+      email: localStorage.getItem("incognote_email") || "",
+      role: localStorage.getItem("incognote_role") || "",
+      mode: "login",
+      selectedNote: null,
+      notes: [],
+      friends: [],
+      invites: [],
+      messages: []
+    };
+
+    const els = {
+      statusBar: document.getElementById("status-bar"),
+      authSection: document.getElementById("auth-section"),
+      appSection: document.getElementById("app-section"),
+      authTitle: document.getElementById("auth-title"),
+      authForm: document.getElementById("auth-form"),
+      registerUsernameWrap: document.getElementById("register-username-wrap"),
+      authEmail: document.getElementById("auth-email"),
+      authUsername: document.getElementById("auth-username"),
+      authPassword: document.getElementById("auth-password"),
+      verifyToken: document.getElementById("verify-token"),
+      verifyEmailBtn: document.getElementById("verify-email-btn"),
+      resendTokenBtn: document.getElementById("resend-token-btn"),
+      authSubmit: document.getElementById("auth-submit"),
+      authToggle: document.getElementById("auth-toggle"),
+      userPill: document.getElementById("user-pill"),
+      logoutBtn: document.getElementById("logout-btn"),
+      createForm: document.getElementById("create-form"),
+      createContent: document.getElementById("create-content"),
+      noteList: document.getElementById("note-list"),
+      refreshBtn: document.getElementById("refresh-btn"),
+      viewerEmpty: document.getElementById("viewer-empty"),
+      viewerForm: document.getElementById("viewer-form"),
+      viewerMeta: document.getElementById("viewer-meta"),
+      viewerContent: document.getElementById("viewer-content"),
+      saveBtn: document.getElementById("save-btn"),
+      deleteBtn: document.getElementById("delete-btn"),
+      shareUsername: document.getElementById("share-username"),
+      sharePermission: document.getElementById("share-permission"),
+      shareBtn: document.getElementById("share-btn"),
+      globalPrivateKey: document.getElementById("global-private-key"),
+      privateKeyFile: document.getElementById("private-key-file"),
+      privateKeyPath: document.getElementById("private-key-path"),
+      friendIdentifier: document.getElementById("friend-identifier"),
+      addFriendBtn: document.getElementById("add-friend-btn"),
+      refreshFriendsBtn: document.getElementById("refresh-friends-btn"),
+      friendList: document.getElementById("friend-list"),
+      refreshInvitesBtn: document.getElementById("refresh-invites-btn"),
+      inviteList: document.getElementById("invite-list"),
+      messageRecipient: document.getElementById("message-recipient"),
+      messageContent: document.getElementById("message-content"),
+      sendMessageBtn: document.getElementById("send-message-btn"),
+      refreshMessagesBtn: document.getElementById("refresh-messages-btn"),
+      messageList: document.getElementById("message-list")
+    };
+
+    function showStatus(message, kind = "ok") {
+      els.statusBar.textContent = message;
+      els.statusBar.className = `status ${kind === "err" ? "status-err" : "status-ok"}`;
+      els.statusBar.classList.remove("hidden");
+      window.setTimeout(() => {
+        els.statusBar.classList.add("hidden");
+      }, 3800);
+    }
+
+    function setAuthMode(mode) {
+      state.mode = mode;
+      const isLogin = mode === "login";
+      els.authTitle.textContent = isLogin ? "Login" : "Register";
+      els.authSubmit.textContent = isLogin ? "Login" : "Register";
+      els.authToggle.textContent = isLogin ? "Need an account?" : "Have an account?";
+      els.registerUsernameWrap.classList.toggle("hidden", isLogin);
+      els.authUsername.required = !isLogin;
+      els.authPassword.autocomplete = isLogin ? "current-password" : "new-password";
+    }
+
+    function setSession({ token, username, email, role }) {
+      state.token = token;
+      state.username = username;
+      state.email = email;
+      state.role = role;
+      localStorage.setItem("incognote_token", token);
+      localStorage.setItem("incognote_username", username);
+      localStorage.setItem("incognote_email", email);
+      localStorage.setItem("incognote_role", role);
+    }
+
+    function clearSession() {
+      state.token = "";
+      state.username = "";
+      state.email = "";
+      state.role = "";
+      state.selectedNote = null;
+      state.notes = [];
+      state.friends = [];
+      state.invites = [];
+      state.messages = [];
+      localStorage.removeItem("incognote_token");
+      localStorage.removeItem("incognote_username");
+      localStorage.removeItem("incognote_email");
+      localStorage.removeItem("incognote_role");
+    }
+
+    function updateLayout() {
+      const authenticated = Boolean(state.token);
+      els.authSection.classList.toggle("hidden", authenticated);
+      els.appSection.classList.toggle("hidden", !authenticated);
+      els.userPill.classList.toggle("hidden", !authenticated);
+      els.logoutBtn.classList.toggle("hidden", !authenticated);
+      if (authenticated) {
+        els.userPill.textContent = `${state.username} <${state.email}> (${state.role})`;
+      }
+      if (!authenticated) {
+        resetViewer();
+        renderFriends();
+        renderInvites();
+        renderMessages();
+      }
+    }
+
+    function setCookie(name, value, days = 365) {
+      const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const row = document.cookie
+        .split(";")
+        .map((value) => value.trim())
+        .find((value) => value.startsWith(`${name}=`));
+      return row ? decodeURIComponent(row.split("=")[1]) : "";
+    }
+
+    function currentPrivateKey() {
+      return els.globalPrivateKey.value.trim();
+    }
+
+    function persistPrivateKey() {
+      sessionStorage.setItem("incognote_private_key", currentPrivateKey());
+    }
+
+    async function authRequest(path, body) {
+      const response = await fetch(`${AUTH_URL}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const payload = await safeJson(response);
+      if (!response.ok) {
+        throw new Error(payload.message || `Auth error ${response.status}`);
+      }
+      return payload;
+    }
+
+    async function notesRequest(path, options = {}) {
+      const response = await fetch(`${NOTES_URL}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${state.token}`,
+          ...(options.headers || {})
+        }
+      });
+
+      const payload = await safeJson(response);
+
+      if (response.status === 401) {
+        clearSession();
+        updateLayout();
+        throw new Error("Session expired. Please login again.");
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.message || `Notes error ${response.status}`);
+      }
+
+      return payload;
+    }
+
+    async function safeJson(response) {
+      try {
+        return await response.json();
+      } catch {
+        return {};
+      }
+    }
+
+    function resetViewer() {
+      state.selectedNote = null;
+      els.viewerForm.classList.add("hidden");
+      els.viewerEmpty.classList.remove("hidden");
+      els.viewerContent.value = "";
+      els.shareUsername.value = "";
+      els.viewerMeta.textContent = "";
+    }
+
+    function noteChipClass(permission) {
+      if (permission === "owner") return "chip-owner";
+      if (permission === "write") return "chip-write";
+      if (permission === "admin") return "chip-admin";
+      return "chip-read";
+    }
+
+    function renderNotes() {
+      els.noteList.innerHTML = "";
+      if (!state.notes.length) {
+        const empty = document.createElement("p");
+        empty.className = "mono";
+        empty.textContent = "No notes yet. Create one on the left.";
+        els.noteList.appendChild(empty);
+        return;
+      }
+
+      state.notes.forEach((note, index) => {
+        const item = document.createElement("article");
+        item.className = "note-item";
+        item.style.animationDelay = `${index * 40}ms`;
+
+        const meta = document.createElement("div");
+        meta.className = "note-meta";
+
+        const left = document.createElement("span");
+        left.textContent = `#${note.id} · ${new Date(note.created_at).toLocaleString()}`;
+
+        const chip = document.createElement("span");
+        chip.className = `chip ${noteChipClass(note.permission)}`;
+        chip.textContent = `${note.permission}${note.is_encrypted ? " · encrypted" : ""}`;
+
+        meta.appendChild(left);
+        meta.appendChild(chip);
+
+        const preview = document.createElement("p");
+        preview.className = "note-preview";
+        preview.textContent = note.content;
+
+        const actions = document.createElement("div");
+        actions.className = "btn-row";
+
+        const viewBtn = document.createElement("button");
+        viewBtn.className = "btn-secondary";
+        viewBtn.textContent = "View";
+        viewBtn.type = "button";
+        viewBtn.onclick = () => selectNote(note.id);
+
+        actions.appendChild(viewBtn);
+
+        if (note.can_edit) {
+          const editBtn = document.createElement("button");
+          editBtn.className = "btn-primary";
+          editBtn.textContent = "Edit";
+          editBtn.type = "button";
+          editBtn.onclick = () => selectNote(note.id);
+          actions.appendChild(editBtn);
+        }
+
+        item.appendChild(meta);
+        item.appendChild(preview);
+        item.appendChild(actions);
+        els.noteList.appendChild(item);
+      });
+    }
+
+    function renderFriends() {
+      els.friendList.innerHTML = "";
+      els.messageRecipient.innerHTML = "";
+
+      if (!state.friends.length) {
+        const empty = document.createElement("p");
+        empty.className = "mono";
+        empty.textContent = "No friends yet. Add by username or email.";
+        els.friendList.appendChild(empty);
+
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No friend selected";
+        els.messageRecipient.appendChild(option);
+        return;
+      }
+
+      state.friends.forEach((friend) => {
+        const item = document.createElement("article");
+        item.className = "note-item";
+
+        const meta = document.createElement("div");
+        meta.className = "note-meta";
+        meta.textContent = friend.username;
+
+        item.appendChild(meta);
+        els.friendList.appendChild(item);
+
+        const option = document.createElement("option");
+        option.value = friend.username;
+        option.textContent = friend.username;
+        els.messageRecipient.appendChild(option);
+      });
+    }
+
+    function renderInvites() {
+      els.inviteList.innerHTML = "";
+      if (!state.invites.length) {
+        const empty = document.createElement("p");
+        empty.className = "mono";
+        empty.textContent = "No pending invites.";
+        els.inviteList.appendChild(empty);
+        return;
+      }
+
+      state.invites.forEach((invite) => {
+        const item = document.createElement("article");
+        item.className = "note-item";
+
+        const meta = document.createElement("div");
+        meta.className = "note-meta";
+        if (invite.direction === "incoming") {
+          meta.textContent = `Incoming from ${invite.requester_username}`;
+        } else {
+          meta.textContent = `Outgoing to ${invite.recipient_username}`;
+        }
+        item.appendChild(meta);
+
+        const sub = document.createElement("p");
+        sub.className = "mono";
+        sub.textContent = new Date(invite.created_at).toLocaleString();
+        item.appendChild(sub);
+
+        if (invite.direction === "incoming") {
+          const actions = document.createElement("div");
+          actions.className = "btn-row";
+
+          const acceptBtn = document.createElement("button");
+          acceptBtn.className = "btn-primary";
+          acceptBtn.type = "button";
+          acceptBtn.textContent = "Accept";
+          acceptBtn.onclick = () => handleInviteAction(invite.request_id, "accept");
+
+          const rejectBtn = document.createElement("button");
+          rejectBtn.className = "btn-secondary";
+          rejectBtn.type = "button";
+          rejectBtn.textContent = "Reject";
+          rejectBtn.onclick = () => handleInviteAction(invite.request_id, "reject");
+
+          actions.appendChild(acceptBtn);
+          actions.appendChild(rejectBtn);
+          item.appendChild(actions);
+        }
+
+        els.inviteList.appendChild(item);
+      });
+    }
+
+    function renderMessages() {
+      els.messageList.innerHTML = "";
+
+      if (!state.messages.length) {
+        const empty = document.createElement("p");
+        empty.className = "mono";
+        empty.textContent = "No messages yet.";
+        els.messageList.appendChild(empty);
+        return;
+      }
+
+      state.messages.forEach((message) => {
+        const item = document.createElement("article");
+        item.className = "note-item";
+
+        const meta = document.createElement("div");
+        meta.className = "note-meta";
+        const direction = message.direction === "sent" ? "to" : "from";
+        const counterpart = message.direction === "sent"
+          ? message.recipient_username
+          : message.sender_username;
+        meta.textContent = `${new Date(message.created_at).toLocaleString()} · ${direction} ${counterpart}${message.encrypted_with_private_key ? " · private-key" : ""}`;
+
+        const content = document.createElement("p");
+        content.className = "note-preview";
+        content.textContent = message.content;
+
+        item.appendChild(meta);
+        item.appendChild(content);
+        els.messageList.appendChild(item);
+      });
+    }
+
+    async function refreshNotes() {
+      try {
+        const key = currentPrivateKey();
+        const query = key ? `?private_key=${encodeURIComponent(key)}` : "";
+        const payload = await notesRequest(`/notes${query}`);
+        state.notes = Array.isArray(payload.notes) ? payload.notes : [];
+        renderNotes();
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function refreshFriends() {
+      try {
+        const payload = await notesRequest("/friends");
+        state.friends = Array.isArray(payload.friends) ? payload.friends : [];
+        renderFriends();
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function refreshInvites() {
+      try {
+        const payload = await notesRequest("/friends/invites");
+        state.invites = Array.isArray(payload.invites) ? payload.invites : [];
+        renderInvites();
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function refreshMessages() {
+      try {
+        const key = currentPrivateKey();
+        const query = key ? `?private_key=${encodeURIComponent(key)}` : "";
+        const payload = await notesRequest(`/messages${query}`);
+        state.messages = Array.isArray(payload.messages) ? payload.messages : [];
+        renderMessages();
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function selectNote(noteId) {
+      try {
+        const key = currentPrivateKey();
+        const query = key ? `?private_key=${encodeURIComponent(key)}` : "";
+        const note = await notesRequest(`/notes/${noteId}${query}`);
+        state.selectedNote = note;
+
+        els.viewerEmpty.classList.add("hidden");
+        els.viewerForm.classList.remove("hidden");
+
+        els.viewerMeta.textContent = `Note #${note.id} · owner ${note.owner_id} · permission ${note.permission}`;
+        els.viewerContent.value = note.content;
+
+        const canDelete = note.permission === "owner" || note.permission === "admin";
+        const canShare = note.permission === "owner" || note.permission === "admin";
+
+        els.viewerContent.disabled = !note.can_edit;
+        els.saveBtn.disabled = !note.can_edit;
+        els.deleteBtn.disabled = !canDelete;
+        els.shareUsername.disabled = !canShare;
+        els.sharePermission.disabled = !canShare;
+        els.shareBtn.disabled = !canShare;
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleAuth(event) {
+      event.preventDefault();
+
+      const email = els.authEmail.value.trim().toLowerCase();
+      const username = els.authUsername.value.trim().toLowerCase();
+      const password = els.authPassword.value;
+      if (!email || !password) {
+        showStatus("Email and password are required", "err");
+        return;
+      }
+
+      try {
+        if (state.mode === "register") {
+          if (!username) {
+            showStatus("Username is required for registration", "err");
+            return;
+          }
+
+          const response = await authRequest("/register", { username, email, password });
+          if (response.verification_token) {
+            els.verifyToken.value = response.verification_token;
+            showStatus("Registration complete. Use token below to verify email.");
+          } else {
+            showStatus("Registration complete. Verify email.");
+          }
+          setAuthMode("login");
+          return;
+        }
+
+        const payload = await authRequest("/login", { email, password });
+        setSession(payload);
+        updateLayout();
+        await Promise.all([refreshNotes(), refreshFriends(), refreshInvites(), refreshMessages()]);
+        showStatus("Logged in successfully");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleVerifyEmail() {
+      const email = els.authEmail.value.trim().toLowerCase();
+      const token = els.verifyToken.value.trim();
+      if (!email || !token) {
+        showStatus("Email and verification token are required", "err");
+        return;
+      }
+
+      try {
+        await authRequest("/verify-email", { email, token });
+        showStatus("Email verified. You can login now.");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleResendToken() {
+      const email = els.authEmail.value.trim().toLowerCase();
+      if (!email) {
+        showStatus("Email is required", "err");
+        return;
+      }
+
+      try {
+        const payload = await authRequest("/resend-verification", { email });
+        if (payload.verification_token) {
+          els.verifyToken.value = payload.verification_token;
+        }
+        showStatus("Verification token refreshed");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleCreate(event) {
+      event.preventDefault();
+      const content = els.createContent.value.trim();
+      const privateKey = currentPrivateKey();
+      if (!content) {
+        showStatus("Note content cannot be empty", "err");
+        return;
+      }
+
+      try {
+        await notesRequest("/notes", {
+          method: "POST",
+          body: JSON.stringify({
+            content,
+            private_key: privateKey || null
+          })
+        });
+
+        els.createContent.value = "";
+        await refreshNotes();
+        showStatus("Note created");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleSave(event) {
+      event.preventDefault();
+      if (!state.selectedNote) {
+        return;
+      }
+
+      try {
+        const privateKey = currentPrivateKey();
+        await notesRequest(`/notes/${state.selectedNote.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            content: els.viewerContent.value,
+            private_key: privateKey || null
+          })
+        });
+
+        showStatus("Note updated");
+        await refreshNotes();
+        await selectNote(state.selectedNote.id);
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleDelete() {
+      if (!state.selectedNote) {
+        return;
+      }
+      if (!window.confirm("Delete selected note?")) {
+        return;
+      }
+
+      try {
+        await notesRequest(`/notes/${state.selectedNote.id}`, { method: "DELETE" });
+        showStatus("Note deleted");
+        resetViewer();
+        await refreshNotes();
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleShare() {
+      if (!state.selectedNote) {
+        return;
+      }
+
+      const recipient = els.shareUsername.value.trim().toLowerCase();
+      if (!recipient) {
+        showStatus("Recipient username/email is required", "err");
+        return;
+      }
+
+      try {
+        await notesRequest("/notes/share", {
+          method: "POST",
+          body: JSON.stringify({
+            note_id: state.selectedNote.id,
+            recipient,
+            permission: els.sharePermission.value
+          })
+        });
+
+        showStatus("Note shared");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleAddFriend() {
+      const identifier = els.friendIdentifier.value.trim().toLowerCase();
+      if (!identifier) {
+        showStatus("Friend username/email is required", "err");
+        return;
+      }
+
+      try {
+        await notesRequest("/friends", {
+          method: "POST",
+          body: JSON.stringify({ identifier })
+        });
+
+        els.friendIdentifier.value = "";
+        await refreshInvites();
+        showStatus("Invite sent");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleInviteAction(requestId, action) {
+      try {
+        await notesRequest(`/friends/invites/${requestId}/${action}`, { method: "POST" });
+        await Promise.all([refreshInvites(), refreshFriends()]);
+        showStatus(action === "accept" ? "Invite accepted" : "Invite rejected");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    async function handleSendMessage() {
+      const recipient = els.messageRecipient.value;
+      const content = els.messageContent.value.trim();
+      const privateKey = currentPrivateKey();
+
+      if (!recipient) {
+        showStatus("Select a friend first", "err");
+        return;
+      }
+      if (!content) {
+        showStatus("Message content cannot be empty", "err");
+        return;
+      }
+
+      try {
+        await notesRequest("/messages", {
+          method: "POST",
+          body: JSON.stringify({
+            recipient,
+            content,
+            private_key: privateKey || null
+          })
+        });
+
+        els.messageContent.value = "";
+        await refreshMessages();
+        showStatus("Message sent");
+      } catch (error) {
+        showStatus(error.message, "err");
+      }
+    }
+
+    function syncPrivateKeyPathLabel(path) {
+      els.privateKeyPath.textContent = path ? `Key file path: ${path}` : "No key file selected.";
+    }
+
+    async function handlePrivateKeyFileLoad() {
+      const file = els.privateKeyFile.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        const key = text.trim();
+        els.globalPrivateKey.value = key;
+        persistPrivateKey();
+
+        const rawPath = els.privateKeyFile.value || file.name;
+        setCookie("incognote_key_path", rawPath);
+        syncPrivateKeyPathLabel(rawPath);
+        showStatus("Private key loaded from file");
+
+        await Promise.all([refreshNotes(), refreshMessages()]);
+      } catch (error) {
+        showStatus(error.message || "Failed to load key file", "err");
+      }
+    }
+
+    function initializePrivateKeyState() {
+      const rememberedKey = sessionStorage.getItem("incognote_private_key") || "";
+      if (rememberedKey) {
+        els.globalPrivateKey.value = rememberedKey;
+      }
+      const rememberedPath = getCookie("incognote_key_path");
+      syncPrivateKeyPathLabel(rememberedPath);
+    }
+
+    function logout() {
+      clearSession();
+      updateLayout();
+      showStatus("Logged out");
+    }
+
+    els.authForm.addEventListener("submit", handleAuth);
+    els.authToggle.addEventListener("click", () => {
+      setAuthMode(state.mode === "login" ? "register" : "login");
+    });
+    els.verifyEmailBtn.addEventListener("click", handleVerifyEmail);
+    els.resendTokenBtn.addEventListener("click", handleResendToken);
+    els.createForm.addEventListener("submit", handleCreate);
+    els.viewerForm.addEventListener("submit", handleSave);
+    els.deleteBtn.addEventListener("click", handleDelete);
+    els.shareBtn.addEventListener("click", handleShare);
+    els.refreshBtn.addEventListener("click", refreshNotes);
+    els.addFriendBtn.addEventListener("click", handleAddFriend);
+    els.refreshFriendsBtn.addEventListener("click", refreshFriends);
+    els.refreshInvitesBtn.addEventListener("click", refreshInvites);
+    els.sendMessageBtn.addEventListener("click", handleSendMessage);
+    els.refreshMessagesBtn.addEventListener("click", refreshMessages);
+    els.privateKeyFile.addEventListener("change", handlePrivateKeyFileLoad);
+    els.globalPrivateKey.addEventListener("input", persistPrivateKey);
+    els.logoutBtn.addEventListener("click", logout);
+
+    setAuthMode("login");
+    initializePrivateKeyState();
+    updateLayout();
+    if (state.token) {
+      Promise.all([refreshNotes(), refreshFriends(), refreshInvites(), refreshMessages()]).catch(() => {
+        showStatus("Could not load notes. Check services status.", "err");
+      });
+    }
+  </script>
+</body>
+</html>
+

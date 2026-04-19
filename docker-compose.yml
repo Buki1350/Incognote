@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: incognote
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d incognote"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  auth-service:
+    build:
+      context: ./auth-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/incognote
+      JWT_SECRET: change_this_for_real_deployments_01234567890123456789
+      JWT_TTL_SECONDS: 3600
+      ADMIN_USERNAME: admin
+      ADMIN_EMAIL: admin@incognote.local
+      ADMIN_PASSWORD: Admin1234
+      TRUSTED_EMAIL_DOMAINS: gmail.com,googlemail.com,outlook.com,hotmail.com,live.com,yahoo.com,icloud.com,proton.me,protonmail.com,incognote.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+  notes-service:
+    build:
+      context: ./notes-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/incognote
+      AUTH_SERVICE_URL: http://auth-service:3001
+      NOTE_ENCRYPTION_KEY: change_this_encryption_key_material_for_demo_2026
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    ports:
+      - "3002:3002"
+
+  frontend:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - auth-service
+      - notes-service
+
+volumes:
+  postgres_data:

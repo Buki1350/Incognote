@@ -1,0 +1,18 @@
+# Rust build artifacts
+/target/
+**/target/
+
+# Cargo local backup files
+**/*.rs.bk
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Local databases
+*.db
