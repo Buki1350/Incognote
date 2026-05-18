@@ -7,8 +7,8 @@ mod services;
 use crate::{
     app::build_app_state,
     routes::{
-        google_auth_callback, google_auth_start, health, register, resend_verification,
-        verify_email,
+        forgot_password, google_auth_callback, google_auth_start, health, register,
+        resend_verification, reset_password, verify_email,
     },
 };
 use axum::{
@@ -29,6 +29,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/register", post(register))
         .route("/verify-email", get(verify_email))
         .route("/resend-verification", post(resend_verification))
+        .route("/forgot-password", post(forgot_password))
+        .route("/reset-password", post(reset_password))
         .route("/auth/google/start", get(google_auth_start))
         .route("/auth/google/callback", get(google_auth_callback))
         .with_state(app_state);

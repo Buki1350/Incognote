@@ -482,6 +482,26 @@ pub async fn share_note(
         return json_error(StatusCode::NOT_FOUND, "Target user not found");
     };
 
+    let friendship = match are_friends(&state, user.user_id, target_user_id).await {
+        Ok(value) => value,
+        Err(error) => {
+            tracing::error!(
+                ?error,
+                user_id = user.user_id,
+                target_user_id,
+                "friendship check failed"
+            );
+            return json_error(StatusCode::SERVICE_UNAVAILABLE, "Database unavailable");
+        }
+    };
+
+    if !friendship {
+        return json_error(
+            StatusCode::FORBIDDEN,
+            "Recipient must be in your friends list",
+        );
+    }
+
     let saved = sqlx::query(
         r#"
         INSERT INTO note_permissions (note_id, user_id, permission)
@@ -1017,6 +1037,54 @@ pub async fn list_messages(
     }
 }
 
+pub async fn delete_message(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(message_id): Path<i64>,
+) -> (StatusCode, Json<serde_json::Value>) {
+    let user = match authenticate(&state, &headers).await {
+        Ok(user) => user,
+        Err(response) => return response,
+    };
+
+    let row = sqlx::query_as::<_, (i64, i64)>(
+        r#"
+        SELECT sender_id, recipient_id
+        FROM direct_messages
+        WHERE id = $1
+        "#,
+    )
+    .bind(message_id)
+    .fetch_optional(&state.db.pool)
+    .await;
+
+    let Some((sender_id, recipient_id)) = (match row {
+        Ok(value) => value,
+        Err(error) => {
+            tracing::error!(?error, user_id = user.user_id, message_id, "message lookup failed");
+            return json_error(StatusCode::SERVICE_UNAVAILABLE, "Database unavailable");
+        }
+    }) else {
+        return json_error(StatusCode::NOT_FOUND, "Message not found");
+    };
+
+    if user.user_id != sender_id && user.user_id != recipient_id {
+        return json_error(StatusCode::FORBIDDEN, "Not a participant of this message");
+    }
+
+    if let Err(error) = sqlx::query("DELETE FROM direct_messages WHERE id = $1")
+        .bind(message_id)
+        .execute(&state.db.pool)
+        .await
+    {
+        tracing::error!(?error, user_id = user.user_id, message_id, "failed to delete message");
+        return json_error(StatusCode::SERVICE_UNAVAILABLE, "Database unavailable");
+    }
+
+    tracing::info!(user_id = user.user_id, message_id, "message deleted");
+    (StatusCode::OK, Json(serde_json::json!({ "message": "Message deleted" })))
+}
+
 async fn handle_friend_invite_action(
     state: AppState,
     headers: HeaderMap,
@@ -1120,7 +1188,7 @@ async fn handle_friend_invite_action(
     )
 }
 
-async fn authenticate(
+pub async fn authenticate(
     state: &AppState,
     headers: &HeaderMap,
 ) -> Result<AuthUser, (StatusCode, Json<serde_json::Value>)> {
@@ -1317,7 +1385,7 @@ fn extract_bearer_token(headers: &HeaderMap) -> Option<String> {
         .map(ToOwned::to_owned)
 }
 
-fn json_error(status: StatusCode, message: &str) -> (StatusCode, Json<serde_json::Value>) {
+pub fn json_error(status: StatusCode, message: &str) -> (StatusCode, Json<serde_json::Value>) {
     (
         status,
         Json(

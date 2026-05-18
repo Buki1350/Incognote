@@ -69,4 +69,32 @@ impl MailService {
 
         Ok(())
     }
+
+    pub async fn send_password_reset_email(&self, to: &str, token: &str) -> Result<(), AppError> {
+        let recipient = to
+            .parse::<Mailbox>()
+            .map_err(|_| AppError::Validation(format!("incorrect email ({})", to)))?;
+
+        let reset_url = format!(
+            "{}/reset-password?token={}&email={}",
+            self.app_base_url.trim_end_matches('/'),
+            token,
+            encode(to)
+        );
+
+        let message = Message::builder()
+            .from(self.from.clone())
+            .to(recipient)
+            .subject("Reset your password")
+            .body(format!(
+                "Click the link to reset your password:\n{reset_url}\n\nThe link expires in 1 hour.\n\nIf you didn't request this, ignore this email."
+            ))
+            .map_err(|_| AppError::Internal("failed to build password reset e-mail".to_string()))?;
+
+        self.mailer.send(message).await.map_err(|error| {
+            AppError::Internal(format!("failed to send password reset e-mail: {error}"))
+        })?;
+
+        Ok(())
+    }
 }

@@ -18,3 +18,9 @@ pub use resend_verification_request::*;
 
 mod verify_email_query;
 pub use verify_email_query::*;
+
+mod forgot_password_request;
+pub use forgot_password_request::*;
+
+mod reset_password_request;
+pub use reset_password_request::*;

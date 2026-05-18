@@ -1,7 +1,7 @@
 use crate::{
     app::AppError,
     db::{UserRecord, UserRepository},
-    models::{AuthResponse, AuthUserResponse, RegisterRequest, RegisterResponse},
+    models::{AuthResponse, AuthUserResponse, ForgotPasswordRequest, RegisterRequest, RegisterResponse, ResetPasswordRequest},
     services::MailService,
 };
 use argon2::{Argon2, PasswordHasher, password_hash::SaltString};
@@ -92,6 +92,12 @@ impl UserService {
             )));
         }
 
+        if payload.password != payload.confirm_password {
+            return Err(AppError::Validation(
+                "passwords do not match".to_string(),
+            ));
+        }
+
         if !payload.email.contains('@') {
             return Err(AppError::Validation(
                 format!("incorrect email ({})", payload.email).to_string(),
@@ -153,6 +159,54 @@ impl UserService {
         }
 
         Ok(())
+    }
+
+    pub async fn forgot_password(&self, payload: ForgotPasswordRequest) -> Result<(), AppError> {
+        if !payload.email.contains('@') {
+            return Err(AppError::Validation(
+                format!("incorrect email ({})", payload.email).to_string(),
+            ));
+        }
+
+        let reset_token = Self::generate_random_token(32);
+        let reset_token_hash = Self::hash_token(&reset_token);
+
+        let should_send = self
+            .user_repo
+            .create_password_reset_token(&payload.email, &reset_token_hash)
+            .await?;
+
+        if should_send {
+            self.mail_service
+                .send_password_reset_email(&payload.email, &reset_token)
+                .await?;
+        }
+
+        Ok(())
+    }
+
+    pub async fn reset_password(&self, payload: ResetPasswordRequest) -> Result<(), AppError> {
+        if payload.new_password.len() < MIN_PASSWORD_LEN {
+            return Err(AppError::Validation(format!(
+                "password must have at least {} characters",
+                MIN_PASSWORD_LEN,
+            )));
+        }
+
+        if payload.new_password != payload.confirm_password {
+            return Err(AppError::Validation("passwords do not match".to_string()));
+        }
+
+        if payload.token.trim().is_empty() {
+            return Err(AppError::Validation("reset token cannot be empty".to_string()));
+        }
+
+        let token_hash = Self::hash_token(&payload.token);
+        let password_hash = Self::hash_password(payload.new_password.as_bytes())?;
+
+        self.user_repo
+            .reset_password(&payload.email, &token_hash, &password_hash)
+            .await
     }
 
     pub async fn start_google_oauth(&self) -> Result<String, AppError> {

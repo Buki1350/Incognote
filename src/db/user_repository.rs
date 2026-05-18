@@ -296,6 +296,131 @@ impl UserRepository {
         }
     }
 
+    pub async fn create_password_reset_token(
+        &self,
+        email: &str,
+        token_hash: &str,
+    ) -> Result<bool, AppError> {
+        let mut tx = self.pool.begin().await.map_err(AppError::Database)?;
+
+        let maybe_user = sqlx::query_as::<_, (i64,)>(
+            r#"
+            SELECT id
+            FROM users
+            WHERE email = $1
+            FOR UPDATE
+            "#,
+        )
+        .bind(email)
+        .fetch_optional(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        let Some((user_id,)) = maybe_user else {
+            tx.commit().await.map_err(AppError::Database)?;
+            return Ok(false);
+        };
+
+        sqlx::query(
+            r#"
+            DELETE FROM password_reset_tokens
+            WHERE user_id = $1
+              AND used_at IS NULL
+            "#,
+        )
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        sqlx::query(
+            r#"
+            INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+            VALUES ($1, $2, NOW() + INTERVAL '1 hour')
+            "#,
+        )
+        .bind(user_id)
+        .bind(token_hash)
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        tx.commit().await.map_err(AppError::Database)?;
+        Ok(true)
+    }
+
+    pub async fn reset_password(
+        &self,
+        email: &str,
+        token_hash: &str,
+        new_password_hash: &str,
+    ) -> Result<(), AppError> {
+        let mut tx = self.pool.begin().await.map_err(AppError::Database)?;
+
+        let matched_user = sqlx::query_as::<_, (i64,)>(
+            r#"
+            UPDATE password_reset_tokens
+            SET used_at = NOW()
+            WHERE token_hash = $1
+              AND used_at IS NULL
+              AND expires_at > NOW()
+            RETURNING user_id
+            "#,
+        )
+        .bind(token_hash)
+        .fetch_optional(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        let Some((user_id,)) = matched_user else {
+            tx.commit().await.map_err(AppError::Database)?;
+            return Err(AppError::Validation("invalid or expired reset token".to_string()));
+        };
+
+        let user = sqlx::query_as::<_, (String,)>(
+            r#"
+            SELECT email FROM users WHERE id = $1
+            "#,
+        )
+        .bind(user_id)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        if user.0.to_lowercase() != email.to_lowercase() {
+            tx.commit().await.map_err(AppError::Database)?;
+            return Err(AppError::Validation("email does not match reset token".to_string()));
+        }
+
+        sqlx::query(
+            r#"
+            UPDATE users
+            SET password_hash = $1
+            WHERE id = $2
+            "#,
+        )
+        .bind(new_password_hash)
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        sqlx::query(
+            r#"
+            DELETE FROM password_reset_tokens
+            WHERE user_id = $1
+              AND used_at IS NULL
+            "#,
+        )
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::Database)?;
+
+        tx.commit().await.map_err(AppError::Database)?;
+        Ok(())
+    }
+
     pub async fn set_user_verified(&self, user_id: i64) -> Result<(), AppError> {
         sqlx::query(
             r#"
@@ -500,6 +625,30 @@ pub async fn initialize_db(pool: &Pool<Postgres>) -> Result<(), sqlx::Error> {
         r#"
         CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at
         ON user_sessions (expires_at)
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            id BIGSERIAL PRIMARY KEY,
+            user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            token_hash CHAR(64) NOT NULL UNIQUE,
+            expires_at TIMESTAMPTZ NOT NULL,
+            used_at TIMESTAMPTZ,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id
+        ON password_reset_tokens (user_id)
         "#,
     )
     .execute(pool)

@@ -1,9 +1,9 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct RegisterRequest {
+pub struct ResetPasswordRequest {
     pub(crate) email: String,
-    pub(crate) username: String,
-    pub(crate) password: String,
+    pub(crate) token: String,
+    pub(crate) new_password: String,
     pub(crate) confirm_password: String,
 }
