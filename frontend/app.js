@@ -1,5 +1,6 @@
-﻿    const AUTH_URL = "http://localhost:3001";
-    const NOTES_URL = "http://localhost:3002";
+﻿    const API_HOST = window.location.hostname;
+    const AUTH_URL = `http://${API_HOST}:3001`;
+    const NOTES_URL = `http://${API_HOST}:3002`;
 
     const state = {
       token: localStorage.getItem("incognote_token") || "",
