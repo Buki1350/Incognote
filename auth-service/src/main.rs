@@ -1,13 +1,9 @@
-//! Auth service executable.
-
 use incognote_auth::{
     app_state::AppState,
     build_router,
     db::{init_db, Db},
-    services::{
-        validate_email, validate_password_strength, validate_username, GeoIpService, JwtService,
-        PasswordService, RateLimiter,
-    },
+    services::{GeoIpService, JwtService, PasswordService, RateLimiter},
+    validation::{validate_email, validate_password_strength, validate_username},
 };
 use std::io;
 

@@ -1,5 +1,3 @@
-//! Notes service executable.
-
 use incognote_notes::{
     app_state::AppState,
     build_router,

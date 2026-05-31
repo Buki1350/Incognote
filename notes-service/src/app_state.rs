@@ -1,5 +1,3 @@
-//! Shared state for notes handlers.
-
 use crate::{
     db::Db,
     services::{AuthClient, EncryptionService},

@@ -1,5 +1,3 @@
-//! Request/response models used by the auth service.
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]

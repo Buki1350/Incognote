@@ -1,6 +1,3 @@
-//! Client used by notes service to validate JWTs through auth service.
-//! Any auth-service communication failure is treated as deny (fail-safe).
-
 use crate::models::AuthUser;
 use reqwest::Client;
 use serde::Deserialize;

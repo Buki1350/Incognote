@@ -1,5 +1,3 @@
-//! Models for notes service requests/responses.
-
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 

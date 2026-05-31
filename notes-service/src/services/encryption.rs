@@ -1,5 +1,3 @@
-//! AES encryption helpers for optional note-at-rest encryption.
-
 use aes_gcm::{
     aead::{rand_core::RngCore, Aead, KeyInit, OsRng},
     Aes256Gcm, Nonce,

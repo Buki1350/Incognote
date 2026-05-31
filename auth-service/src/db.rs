@@ -1,6 +1,3 @@
-//! Database layer for the auth service.
-//! User accounts and email-verification metadata are managed here.
-
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::env;
 
@@ -24,7 +21,6 @@ impl Db {
     }
 }
 
-/// Create the `users` table expected by the assignment.
 pub async fn init_db(pool: &Pool<Postgres>) -> Result<(), sqlx::Error> {
     sqlx::query(
         r#"

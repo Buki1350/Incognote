@@ -1,6 +1,3 @@
-//! Database utilities for notes service.
-//! Note, friendship, invite, and direct-message tables are initialized here.
-
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::env;
 

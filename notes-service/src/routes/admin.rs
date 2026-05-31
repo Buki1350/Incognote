@@ -7,7 +7,7 @@ use serde::Serialize;
 
 use crate::{
     app_state::AppState,
-    routes::notes::{authenticate, json_error},
+    routes::helpers::{authenticate, json_error},
 };
 use axum::http::StatusCode;
 

@@ -1,5 +1,3 @@
-//! Notes Service library for Incognote.
-
 pub mod app_state;
 pub mod db;
 pub mod models;
@@ -37,20 +35,20 @@ pub fn build_router(state: AppState) -> Router {
         .route("/notes/{id}", put(routes::notes::update_note))
         .route("/notes/{id}", delete(routes::notes::delete_note))
         .route("/notes/share", post(routes::notes::share_note))
-        .route("/friends", get(routes::notes::list_friends))
-        .route("/friends", post(routes::notes::add_friend))
-        .route("/friends/invites", get(routes::notes::list_friend_invites))
+        .route("/friends", get(routes::friends::list_friends))
+        .route("/friends", post(routes::friends::add_friend))
+        .route("/friends/invites", get(routes::friends::list_friend_invites))
         .route(
             "/friends/invites/{request_id}/accept",
-            post(routes::notes::accept_friend_invite),
+            post(routes::friends::accept_friend_invite),
         )
         .route(
             "/friends/invites/{request_id}/reject",
-            post(routes::notes::reject_friend_invite),
+            post(routes::friends::reject_friend_invite),
         )
-        .route("/messages", get(routes::notes::list_messages))
-        .route("/messages", post(routes::notes::send_message))
-        .route("/messages/{id}", delete(routes::notes::delete_message))
+        .route("/messages", get(routes::messages::list_messages))
+        .route("/messages", post(routes::messages::send_message))
+        .route("/messages/{id}", delete(routes::messages::delete_message))
         .route("/admin/users", get(routes::admin::list_all_users))
         .route("/admin/users/{user_id}", delete(routes::admin::delete_user))
         .route("/admin/users/{user_id}/notes", get(routes::admin::list_user_notes))
