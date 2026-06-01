@@ -5,7 +5,7 @@ edition = "2021"
 
 [[bin]]
 name = "notes-service"
-path = "src/main.rs"
+path = "src/notes-service/main.rs"
 
 [dependencies]
 axum = "0.8.1"
