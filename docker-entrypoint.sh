@@ -1,12 +1,14 @@
 #!/bin/sh
 set -e
 
-# Allow overriding ports via env (used by PaaS platforms)
-export AUTH_PORT=${PORT:-${AUTH_PORT:-3001}}
-export NOTES_PORT=${NOTES_PORT:-3002}
-export AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://127.0.0.1:${AUTH_PORT}}
+# Platform typically sets PORT=3000 — unset so services use AUTH_PORT/NOTES_PORT
+unset PORT
 
-# Update nginx proxy config with actual ports
+AUTH_PORT=${AUTH_PORT:-3001}
+NOTES_PORT=${NOTES_PORT:-3002}
+
+export AUTH_SERVICE_URL=http://127.0.0.1:${AUTH_PORT}
+
 cat > /etc/nginx/conf.d/default.conf <<EOF
 server {
     listen 80;
@@ -39,7 +41,6 @@ echo "Starting notes-service on 0.0.0.0:${NOTES_PORT}..."
 NOTES_PORT=${NOTES_PORT} /usr/local/bin/notes-service &
 NOTES_PID=$!
 
-# Give services a moment to start
 sleep 2
 
 echo "Starting nginx on port 80..."
