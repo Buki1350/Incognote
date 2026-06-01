@@ -27,16 +27,6 @@
       authUsername: document.getElementById("auth-username"),
       authPassword: document.getElementById("auth-password"),
       authConfirmPassword: document.getElementById("auth-confirm-password"),
-      verifyToken: document.getElementById("verify-token"),
-      verifyEmailBtn: document.getElementById("verify-email-btn"),
-      resendTokenBtn: document.getElementById("resend-token-btn"),
-      forgotPasswordSection: document.getElementById("forgot-password-section"),
-      forgotPasswordBtn: document.getElementById("forgot-password-btn"),
-      resetPasswordSection: document.getElementById("reset-password-section"),
-      resetToken: document.getElementById("reset-token"),
-      newPassword: document.getElementById("new-password"),
-      confirmNewPassword: document.getElementById("confirm-new-password"),
-      resetPasswordSubmitBtn: document.getElementById("reset-password-submit-btn"),
       authSubmit: document.getElementById("auth-submit"),
       authToggle: document.getElementById("auth-toggle"),
       userPill: document.getElementById("user-pill"),
@@ -674,13 +664,8 @@
             return;
           }
 
-          const response = await authRequest("/register", { username, email, password, confirm_password: confirmPassword });
-          if (response.verification_token) {
-            els.verifyToken.value = response.verification_token;
-            showStatus("Registration complete. Use token below to verify email.");
-          } else {
-            showStatus("Registration complete. Verify email.");
-          }
+          await authRequest("/register", { username, email, password, confirm_password: confirmPassword });
+          showStatus("Registration complete. You can login now.");
           setAuthMode("login");
           return;
         }
@@ -690,89 +675,6 @@
         updateLayout();
         await Promise.all([refreshNotes(), refreshFriends(), refreshInvites(), refreshMessages()]);
         showStatus("Logged in successfully");
-      } catch (error) {
-        showStatus(error.message, "err");
-      }
-    }
-
-    async function handleVerifyEmail() {
-      const email = els.authEmail.value.trim().toLowerCase();
-      const token = els.verifyToken.value.trim();
-      if (!email || !token) {
-        showStatus("Email and verification token are required", "err");
-        return;
-      }
-
-      try {
-        await authRequest("/verify-email", { email, token });
-        showStatus("Email verified. You can login now.");
-      } catch (error) {
-        showStatus(error.message, "err");
-      }
-    }
-
-    async function handleResendToken() {
-      const email = els.authEmail.value.trim().toLowerCase();
-      if (!email) {
-        showStatus("Email is required", "err");
-        return;
-      }
-
-      try {
-        const payload = await authRequest("/resend-verification", { email });
-        if (payload.verification_token) {
-          els.verifyToken.value = payload.verification_token;
-        }
-        showStatus("Verification token refreshed");
-      } catch (error) {
-        showStatus(error.message, "err");
-      }
-    }
-
-    async function handleForgotPassword() {
-      const email = els.authEmail.value.trim().toLowerCase();
-      if (!email) {
-        showStatus("Email is required", "err");
-        return;
-      }
-
-      try {
-        await authRequest("/forgot-password", { email });
-        els.resetPasswordSection.classList.remove("hidden");
-        showStatus("If email exists, reset link has been sent");
-      } catch (error) {
-        showStatus(error.message, "err");
-      }
-    }
-
-    async function handleResetPassword() {
-      const email = els.authEmail.value.trim().toLowerCase();
-      const token = els.resetToken.value.trim();
-      const newPassword = els.newPassword.value;
-      const confirmNewPassword = els.confirmNewPassword.value;
-
-      if (!email || !token || !newPassword || !confirmNewPassword) {
-        showStatus("All fields are required", "err");
-        return;
-      }
-
-      if (newPassword !== confirmNewPassword) {
-        showStatus("Passwords do not match", "err");
-        return;
-      }
-
-      try {
-        await authRequest("/reset-password", {
-          email,
-          token,
-          new_password: newPassword,
-          confirm_password: confirmNewPassword
-        });
-        showStatus("Password reset. Please login.");
-        els.resetPasswordSection.classList.add("hidden");
-        els.resetToken.value = "";
-        els.newPassword.value = "";
-        els.confirmNewPassword.value = "";
       } catch (error) {
         showStatus(error.message, "err");
       }
@@ -1063,10 +965,6 @@
     els.authToggle.addEventListener("click", () => {
       setAuthMode(state.mode === "login" ? "register" : "login");
     });
-    els.verifyEmailBtn.addEventListener("click", handleVerifyEmail);
-    els.resendTokenBtn.addEventListener("click", handleResendToken);
-    els.forgotPasswordBtn.addEventListener("click", handleForgotPassword);
-    els.resetPasswordSubmitBtn.addEventListener("click", handleResetPassword);
     els.createForm.addEventListener("submit", handleCreate);
     els.viewerForm.addEventListener("submit", handleSave);
     els.deleteBtn.addEventListener("click", handleDelete);

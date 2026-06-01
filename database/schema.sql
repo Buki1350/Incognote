@@ -66,3 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_friend_requests_requester ON friend_requests(requ
 CREATE INDEX IF NOT EXISTS idx_friend_requests_recipient ON friend_requests(recipient_id);
 CREATE INDEX IF NOT EXISTS idx_friend_requests_status ON friend_requests(status);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_verification_token_unique ON users(email_verification_token) WHERE email_verification_token IS NOT NULL;
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token VARCHAR(128);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token_expires_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_users_password_reset_token ON users(password_reset_token) WHERE password_reset_token IS NOT NULL;

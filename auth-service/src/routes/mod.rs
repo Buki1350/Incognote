@@ -1,10 +1,10 @@
+pub mod forgot_password;
 pub mod health;
 pub mod login;
 pub mod register;
-pub mod resend_verification;
+pub mod reset_password;
 pub mod update_role;
 pub mod validate_token;
-pub mod verify_email;
 
 use axum::http::{HeaderMap, StatusCode};
 use axum::Json;

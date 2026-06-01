@@ -80,5 +80,17 @@ pub async fn init_db(pool: &Pool<Postgres>) -> Result<(), sqlx::Error> {
     .execute(pool)
     .await?;
 
+    sqlx::query("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token VARCHAR(128)")
+        .execute(pool)
+        .await?;
+    sqlx::query("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token_expires_at TIMESTAMPTZ")
+        .execute(pool)
+        .await?;
+    sqlx::query(
+        "CREATE INDEX IF NOT EXISTS idx_users_password_reset_token ON users (password_reset_token) WHERE password_reset_token IS NOT NULL",
+    )
+    .execute(pool)
+    .await?;
+
     Ok(())
 }

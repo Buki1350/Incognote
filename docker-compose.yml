@@ -26,6 +26,12 @@ services:
       ADMIN_EMAIL: admin@incognote.local
       ADMIN_PASSWORD: Admin1234
       TRUSTED_EMAIL_DOMAINS: gmail.com,googlemail.com,outlook.com,hotmail.com,live.com,yahoo.com,icloud.com,proton.me,protonmail.com,incognote.local
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-Incognote <no-reply@incognote.local>}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
     depends_on:
       postgres:
         condition: service_healthy

@@ -2,7 +2,7 @@ use incognote_auth::{
     app_state::AppState,
     build_router,
     db::{init_db, Db},
-    services::{GeoIpService, JwtService, PasswordService, RateLimiter},
+    services::{EmailService, GeoIpService, JwtService, PasswordService, RateLimiter},
     validation::{validate_email, validate_password_strength, validate_username},
 };
 use std::io;
@@ -25,8 +25,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
     let geoip = GeoIpService::new();
     let limiter = RateLimiter::secure_defaults();
+    let email = EmailService::from_env();
 
-    let state = AppState::new(db, jwt, geoip, limiter);
+    let state = AppState::new(db, jwt, geoip, limiter, email);
     let app = build_router(state);
 
     let addr = "0.0.0.0:3001";

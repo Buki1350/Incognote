@@ -4,7 +4,7 @@ use crate::{
     validation::{validate_email, validate_password_strength, validate_trusted_email_provider, validate_username},
 };
 use axum::{extract::State, http::StatusCode, Json};
-use super::{generate_verification_token, json_error};
+use super::json_error;
 
 pub async fn register(
     State(state): State<AppState>,
@@ -33,31 +33,27 @@ pub async fn register(
         }
     };
 
-    let verification_token = generate_verification_token();
-
     let inserted = sqlx::query_as::<_, (i64,)>(
         r#"
-        INSERT INTO users (username, email, password_hash, is_email_verified, email_verification_token, role)
-        VALUES ($1, $2, $3, FALSE, $4, 'user')
+        INSERT INTO users (username, email, password_hash, is_email_verified, role)
+        VALUES ($1, $2, $3, TRUE, 'user')
         RETURNING id
         "#,
     )
     .bind(&username)
     .bind(&email)
     .bind(&password_hash)
-    .bind(&verification_token)
     .fetch_one(&state.db.pool)
     .await;
 
     match inserted {
         Ok((user_id,)) => {
-            tracing::info!(username = %username, %email, user_id, "user registered, email verification required");
+            tracing::info!(username = %username, %email, user_id, "user registered");
             (
                 StatusCode::CREATED,
                 Json(serde_json::json!({
-                    "message": "User registered. Verify email before login.",
+                    "message": "User registered. You can login now.",
                     "user_id": user_id,
-                    "verification_token": verification_token
                 })),
             )
         }

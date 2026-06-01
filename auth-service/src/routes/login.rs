@@ -42,7 +42,7 @@ pub async fn login(
     .fetch_optional(&state.db.pool)
     .await;
 
-    let Some((user_id, db_username, db_email, password_hash, is_email_verified, role)) = (match user
+    let Some((user_id, db_username, db_email, password_hash, _is_email_verified, role)) = (match user
     {
         Ok(record) => record,
         Err(error) => {
@@ -54,11 +54,6 @@ pub async fn login(
         tracing::warn!(%email, %ip, "invalid login: unknown user");
         return json_error(StatusCode::UNAUTHORIZED, "Invalid credentials");
     };
-
-    if !is_email_verified {
-        tracing::warn!(%db_email, "login blocked: email not verified");
-        return json_error(StatusCode::FORBIDDEN, "Email address is not verified");
-    }
 
     let password_ok =
         PasswordService::verify_password(&payload.password, &password_hash).unwrap_or(false);

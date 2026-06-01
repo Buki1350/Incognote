@@ -26,11 +26,8 @@ pub fn build_router(state: AppState) -> Router {
         .route("/health", get(routes::health::health))
         .route("/register", post(routes::register::register))
         .route("/login", post(routes::login::login))
-        .route("/verify-email", post(routes::verify_email::verify_email))
-        .route(
-            "/resend-verification",
-            post(routes::resend_verification::resend_verification),
-        )
+        .route("/forgot-password", post(routes::forgot_password::forgot_password))
+        .route("/reset-password", post(routes::reset_password::reset_password))
         .route("/validate-token", post(routes::validate_token::validate_token))
         .route("/roles/{user_id}", put(routes::update_role::update_role))
         .layer(TraceLayer::new_for_http())

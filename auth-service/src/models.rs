@@ -8,17 +8,6 @@ pub struct RegisterRequest {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct VerifyEmailRequest {
-    pub email: String,
-    pub token: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ResendVerificationRequest {
-    pub email: String,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
@@ -51,6 +40,18 @@ pub struct Claims {
     pub role: String,
     pub exp: usize,
     pub iat: usize,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ForgotPasswordRequest {
+    pub email: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResetPasswordRequest {
+    pub email: String,
+    pub token: String,
+    pub new_password: String,
 }
 
 #[derive(Debug, Deserialize)]
