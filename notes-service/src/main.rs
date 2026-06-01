@@ -25,7 +25,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let state = AppState::new(db, auth_client, encryption);
     let app = build_router(state);
 
-    let addr = "0.0.0.0:3002";
+    let port = std::env::var("PORT").or_else(|_| std::env::var("NOTES_PORT")).unwrap_or_else(|_| "3002".to_string());
+    let addr = format!("0.0.0.0:{port}");
     tracing::info!(%addr, "notes service started");
 
     let listener = tokio::net::TcpListener::bind(addr).await?;

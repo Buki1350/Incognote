@@ -30,7 +30,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let state = AppState::new(db, jwt, geoip, limiter, email);
     let app = build_router(state);
 
-    let addr = "0.0.0.0:3001";
+    let port = std::env::var("PORT").or_else(|_| std::env::var("AUTH_PORT")).unwrap_or_else(|_| "3001".to_string());
+    let addr = format!("0.0.0.0:{port}");
     tracing::info!(%addr, "auth service started");
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
