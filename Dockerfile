@@ -11,8 +11,8 @@ FROM nginx:1.27-alpine
 
 RUN apk add --no-cache ca-certificates
 
-COPY --from=builder /app/target/release/incognote-auth /usr/local/bin/auth-service
-COPY --from=builder /app/target/release/incognote-notes /usr/local/bin/notes-service
+COPY --from=builder /app/target/release/auth-service /usr/local/bin/auth-service
+COPY --from=builder /app/target/release/notes-service /usr/local/bin/notes-service
 
 COPY frontend/ /usr/share/nginx/html/
 COPY docker-entrypoint.sh /usr/local/bin/
