@@ -4,18 +4,23 @@ WORKDIR /app
 
 COPY . .
 
-RUN cargo build --release -p incognote-auth
-RUN cargo build --release -p incognote-notes
+# build całego workspace (najbezpieczniej)
+RUN cargo build --release
 
-FROM nginx:1.27-alpine
 
-RUN apk add --no-cache ca-certificates
+FROM nginx:1.27-bookworm
 
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# binarki Rust
 COPY --from=builder /app/target/release/auth-service /usr/local/bin/auth-service
 COPY --from=builder /app/target/release/notes-service /usr/local/bin/notes-service
 
+# frontend
 COPY frontend/ /usr/share/nginx/html/
-COPY docker-entrypoint.sh /usr/local/bin/
+
+# entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
