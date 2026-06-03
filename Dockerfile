@@ -1,11 +1,19 @@
 FROM rust:1.88-bookworm AS builder
 
 WORKDIR /app
+COPY Cargo.toml Cargo.lock ./
+COPY auth-service/Cargo.toml notes-service/Cargo.toml ./
 
-COPY . .
+# dummy main to cache dependencies separately from source changes
+RUN mkdir -p auth-service/src notes-service/src \
+    && echo "fn main() {}" > auth-service/src/main.rs \
+    && echo "fn main() {}" > notes-service/src/main.rs \
+    && cargo build --release -p incognote-auth -p incognote-notes 2>&1
 
-RUN cargo build --release --package incognote-auth && \
-    cargo build --release --package incognote-notes
+COPY auth-service/src ./auth-service/src
+COPY notes-service/src ./notes-service/src
+
+RUN cargo build --release -p incognote-auth -p incognote-notes
 
 FROM nginx:1.27-alpine
 
