@@ -2,7 +2,8 @@ FROM rust:1.88-bookworm AS builder
 
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
-COPY auth-service/Cargo.toml notes-service/Cargo.toml ./
+COPY auth-service/Cargo.toml ./auth-service/
+COPY notes-service/Cargo.toml ./notes-service/
 
 # dummy main to cache dependencies separately from source changes
 RUN mkdir -p auth-service/src notes-service/src \
