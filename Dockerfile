@@ -16,9 +16,11 @@ COPY notes-service/src ./notes-service/src
 
 RUN cargo build --release -p incognote-auth -p incognote-notes
 
-FROM nginx:1.27-alpine
+FROM nginx:1.27-bookworm
 
-RUN apk add --no-cache ca-certificates
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/target/release/auth-service /usr/local/bin/auth-service
 COPY --from=builder /app/target/release/notes-service /usr/local/bin/notes-service
@@ -29,4 +31,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

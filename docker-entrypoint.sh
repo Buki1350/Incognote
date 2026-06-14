@@ -1,13 +1,13 @@
 #!/bin/sh
 set -e
 
-# Platform typically sets PORT=3000 — unset so services use AUTH_PORT/NOTES_PORT
+# Some platforms set PORT globally; the internal services use their own ports.
 unset PORT
 
 AUTH_PORT=${AUTH_PORT:-3001}
 NOTES_PORT=${NOTES_PORT:-3002}
 
-export AUTH_SERVICE_URL=http://127.0.0.1:${AUTH_PORT}
+export AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://127.0.0.1:${AUTH_PORT}}
 
 cat > /etc/nginx/conf.d/default.conf <<EOF
 server {
